@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ИИ-Шеф — Кто ты из Яндекс Лавки?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue:       #00ADFF;
+            --blue-light: #A3E8FE;
+            --blue-mid:   #8BC3FF;
+            --blue-dark:  #3557CC;
+            --navy:       #1B3A6A;
+            --orange:     #FF8204;
+            --peach:      #F9A870;
+            --pink:       #F6C3CF;
+            --beige:      #E5C5B4;
+            --white:      #FFFFFF;
+            --bg:         #F4F8FF;
+
+            --text:       #1B3A6A;
+            --text-mid:   #3557CC;
+            --text-muted: #6B85A8;
+            --text-dim:   #A0B4CC;
+            --border:     rgba(0,173,255,0.15);
+
+            --shadow-sm:  0 2px 12px rgba(27,58,106,0.08);
+            --shadow-md:  0 6px 28px rgba(27,58,106,0.13);
+            --shadow-lg:  0 14px 48px rgba(27,58,106,0.18);
+            --shadow-card:0 4px 0px rgba(27,58,106,0.18);
+
+            --radius-sm:  10px;
+            --radius-md:  16px;
+            --radius-lg:  22px;
+            --radius-xl:  28px;
+            --tr:         0.22s ease;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+
+        /* ══════════════════════════════
+           INTRO
+        ══════════════════════════════ */
+        #intro {
+            background: var(--white);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 52px 24px 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* фоновые декоры */
+        .intro-decor {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .intro-decor-1 {
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, rgba(0,173,255,0.07) 0%, transparent 70%);
+            top: -160px; left: -160px;
+        }
+        .intro-decor-2 {
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, rgba(255,130,4,0.06) 0%, transparent 70%);
+            bottom: -100px; right: -100px;
+        }
+
+        /* бейдж 7 лет */
+        .bday-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--blue);
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 28px;
+            position: relative; z-index: 1;
+            box-shadow: 0 4px 0 rgba(0,100,180,0.25);
+        }
+        .bday-num {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        .bday-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.2px;
+        }
+
+        /* логотип */
+        .intro-logo {
+            position: relative; z-index: 1;
+            margin: 0 auto 24px;
+            width: 96px; height: 96px;
+        }
+        .intro-logo img {
+            width: 96px; height: 96px;
+            border-radius: 26px;
+            box-shadow: var(--shadow-md), 0 6px 0 rgba(0,100,180,0.20);
+            animation: logoPulse 3s ease-in-out infinite;
+            display: block;
+        }
+        @keyframes logoPulse {
+            0%,100%{ transform: scale(1); box-shadow: var(--shadow-md), 0 6px 0 rgba(0,100,180,0.20); }
+            50%    { transform: scale(1.03); box-shadow: var(--shadow-lg), 0 8px 0 rgba(0,100,180,0.25); }
+        }
+
+        /* ai online pill */
+        .ai-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(0,173,255,0.09);
+            border: 1.5px solid rgba(0,173,255,0.22);
+            border-radius: 50px;
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 18px;
+            position: relative; z-index: 1;
+        }
+        .ai-dot {
+            width: 7px; height: 7px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: dotBlink 1.6s ease infinite;
+        }
+        @keyframes dotBlink {
+            0%,100%{ opacity:1; }
+            50%    { opacity:.2; }
+        }
+
+        /* заголовок */
+        .intro-brand {
+            position: relative; z-index: 1;
+            font-size: clamp(52px, 12vw, 88px);
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: .95;
+            color: var(--blue);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .intro-waiting {
+            position: relative; z-index: 1;
+            font-size: clamp(20px, 4.5vw, 30px);
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+        .intro-waiting em {
+            color: var(--orange);
+            font-style: normal;
+        }
+
+        /* панель */
+        .ai-panel {
+            position: relative; z-index: 1;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px 26px;
+            max-width: 400px; width: 100%;
+            margin: 0 auto 32px;
+            text-align: left;
+            box-shadow: var(--shadow-sm), var(--shadow-card);
+        }
+        .ai-panel-header {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 10px;
+        }
+        .ai-panel-title {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--blue);
+        }
+        .ai-panel-body {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+        .ai-panel-stats {
+            display: flex;
+            margin-top: 18px; padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .ai-st {
+            flex: 1; text-align: center;
+            border-right: 1px solid var(--border);
+        }
+        .ai-st:last-child { border-right: none; }
+        .ai-st-n {
+            font-size: 24px; font-weight: 900;
+            color: var(--blue); line-height: 1;
+            display: block; margin-bottom: 3px;
+            letter-spacing: -1px;
+        }
+        .ai-st-l {
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        /* кнопка */
+        .btn-start {
+            position: relative; z-index: 1;
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            padding: 18px 56px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: -0.2px;
+            box-shadow: 0 6px 24px rgba(0,173,255,0.35), 0 4px 0 rgba(0,100,180,0.30);
+            transition: transform var(--tr), box-shadow var(--tr);
+        }
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(0,173,255,0.45), 0 4px 0 rgba(0,100,180,0.30);
+        }
+        .btn-start:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 12px rgba(0,173,255,0.30), 0 2px 0 rgba(0,100,180,0.30);
+        }
+
+        /* ══════════════════════════════
+           QUESTION
+        ══════════════════════════════ */
+        #question {
+            background: var(--bg);
+            justify-content: flex-start;
+        }
+
+        .q-topbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            padding: 13px 20px;
+            display: flex; align-items: center; gap: 14px;
+            border-bottom: 1.5px solid var(--border);
+            position: sticky; top: 0; z-index: 10;
+            box-shadow: 0 2px 12px rgba(27,58,106,0.06);
+        }
+        .q-logo-sm {
+            width: 32px; height: 32px;
+            border-radius: 9px; overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 2px 0 rgba(0,100,180,0.20);
+        }
+        .q-logo-sm img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .prog-track {
+            flex: 1; height: 5px;
+            background: rgba(0,173,255,0.12);
+            border-radius: 3px; overflow: hidden;
+        }
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--orange));
+            border-radius: 3px;
+            transition: width .45s ease;
+        }
+        .q-cnt {
+            font-size: 12px; font-weight: 800;
+            color: var(--text-dim); white-space: nowrap;
+        }
+
+        .q-body {
+            flex: 1;
+            padding: 32px 20px 72px;
+            max-width: 540px; margin: 0 auto; width: 100%;
+        }
+        .q-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,173,255,0.08);
+            border: 1.5px solid rgba(0,173,255,0.18);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 10px; font-weight: 800;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 18px;
+        }
+        .q-emoji { font-size: 44px; display: block; margin-bottom: 12px; }
+        .q-text {
+            font-size: clamp(20px,4.5vw,26px);
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--text);
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        /* ── КАРТОЧКИ ОТВЕТОВ ── */
+        .options { display: flex; flex-direction: column; gap: 11px; }
+
+        .opt {
+            width: 100%;
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            text-align: left;
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--tr), box-shadow var(--tr),
+                        background var(--tr), border-color var(--tr);
+            line-height: 1.45;
+            display: flex; align-items: flex-start; gap: 12px;
+            border: 1.5px solid transparent;
+            outline: none;
+        }
+        .opt:active { transform: translateX(2px) scale(.99); }
+
+        /* A — голубой */
+        .opt[data-idx="0"] {
+            background: #EBF8FF;
+            border-color: #A3E8FE;
+            box-shadow: 0 3px 0 rgba(0,173,255,0.18);
+        }
+        .opt[data-idx="0"]:hover {
+            background: #D0F1FF;
+            border-color: var(--blue);
+            transform: translateX(5px);
+            box-shadow: 0 5px 0 rgba(0,173,255,0.22), var(--shadow-sm);
+        }
+        .opt[data-idx="0"].selected {
+            background: #BDE8FF;
+            border-color: var(--blue);
+            box-shadow: 0 4px 0 rgba(0,173,255,0.28);
+        }
+
+        /* B — оранжевый */
+        .opt[data-idx="1"] {
+            background: #FFF4EC;
+            border-color: #F9A870;
+            box-shadow: 0 3px 0 rgba(255,130,4,0.18);
+        }
+        .opt[data-idx="1"]:hover {
+            background: #FFE5D0;
+            border-color: var(--orange);
+            transform: translateX(5px);
+            box-shadow: 0 5px 0 rgba(255,130,4,0.22), var(--shadow-sm);
+        }
+        .opt[data-idx="1"].selected {
+            background: #FFD9B8;
+            border-color: var(--orange);
+            box-shadow: 0 4px 0 rgba(255,130,4,0.28);
+        }
+
+        /* C — розовый */
+        .opt[data-idx="2"] {
+            background: #FFF0F4;
+            border-color: #F6C3CF;
+            box-shadow: 0 3px 0 rgba(246,195,207,0.40);
+        }
+        .opt[data-idx="2"]:hover {
+            background: #FFE0E8;
+            border-color: #E07090;
+            transform: translateX(5px);
+            box-shadow: 0 5px 0 rgba(224,112,144,0.22), var(--shadow-sm);
+        }
+        .opt[data-idx="2"].selected {
+            background: #FFC8D8;
+            border-color: #E07090;
+            box-shadow: 0 4px 0 rgba(224,112,144,0.28);
+        }
+
+        /* D — бежевый */
+        .opt[data-idx="3"] {
+            background: #FAF5F1;
+            border-color: #E5C5B4;
+            box-shadow: 0 3px 0 rgba(229,197,180,0.40);
+        }
+        .opt[data-idx="3"]:hover {
+            background: #F0E6DE;
+            border-color: #C9A090;
+            transform: translateX(5px);
+            box-shadow: 0 5px 0 rgba(201,160,144,0.22), var(--shadow-sm);
+        }
+        .opt[data-idx="3"].selected {
+            background: #E8D4C8;
+            border-color: #C9A090;
+            box-shadow: 0 4px 0 rgba(201,160,144,0.28);
+        }
+
+        /* badge буквы */
+        .opt-badge {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800;
+            flex-shrink: 0; margin-top: 1px;
+            transition: background var(--tr), color var(--tr);
+        }
+        .opt[data-idx="0"] .opt-badge { background: rgba(0,173,255,0.15); color: var(--blue-dark); }
+        .opt[data-idx="1"] .opt-badge { background: rgba(255,130,4,0.15); color: #A04000; }
+        .opt[data-idx="2"] .opt-badge { background: rgba(246,195,207,0.50); color: #A03050; }
+        .opt[data-idx="3"] .opt-badge { background: rgba(229,197,180,0.50); color: #704030; }
+
+        .opt.selected[data-idx="0"] .opt-badge { background: var(--blue);   color: var(--white); }
+        .opt.selected[data-idx="1"] .opt-badge { background: var(--orange); color: var(--white); }
+        .opt.selected[data-idx="2"] .opt-badge { background: #E07090;       color: var(--white); }
+        .opt.selected[data-idx="3"] .opt-badge { background: #C9A090;       color: var(--white); }
+
+        /* ══════════════════════════════
+           LOADING
+        ══════════════════════════════ */
+        #loading {
+            background: var(--white);
+            align-items: center; justify-content: center;
+            text-align: center; padding: 48px 24px;
+        }
+        .load-logo {
+            width: 96px; height: 96px;
+            border-radius: 26px;
+            margin: 0 auto 28px;
+            display: block;
+            box-shadow: var(--shadow-md), 0 6px 0 rgba(0,100,180,0.20);
+            animation: loadPulse 1s ease-in-out infinite;
+        }
+        @keyframes loadPulse {
+            0%,100%{ transform: scale(1); box-shadow: var(--shadow-md), 0 6px 0 rgba(0,100,180,0.20); }
+            50%    { transform: scale(1.08); box-shadow: var(--shadow-lg), 0 8px 0 rgba(0,100,180,0.25); }
+        }
+        .load-title {
+            font-size: 22px; font-weight: 900;
+            color: var(--text); margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .load-msg {
+            font-size: 15px; color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 32px; min-height: 22px;
+        }
+        .load-track {
+            width: 220px; height: 5px;
+            background: rgba(0,173,255,0.12);
+            border-radius: 3px; overflow: hidden;
+        }
+        .load-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--orange));
+            border-radius: 3px;
+            animation: loadBar 2.8s ease forwards;
+        }
+        @keyframes loadBar { 0%{ width:0%; } 100%{ width:100%; } }
+
+        /* ══════════════════════════════
+           RESULT
+        ══════════════════════════════ */
+        #result {
+            background: var(--white);
+            align-items: center;
+        }
+
+        .res-top {
+            width: 100%; max-width: 540px;
+            margin: 0 auto;
+            padding: 48px 20px 0;
+            text-align: center;
+        }
+        .res-ai-row {
+            display: flex; align-items: center; justify-content: center;
+            gap: 7px;
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--blue); margin-bottom: 12px;
+        }
+        .res-conf {
+            display: inline-block;
+            background: rgba(0,173,255,0.08);
+            border: 1.5px solid rgba(0,173,255,0.20);
+            color: var(--blue-dark);
+            padding: 5px 16px; border-radius: 50px;
+            font-size: 12px; font-weight: 700;
+            margin-bottom: 22px;
+        }
+        .res-emoji {
+            font-size: 84px; display: block;
+            margin: 0 auto 18px;
+            animation: resIn .6s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        @keyframes resIn {
+            0%  { transform: scale(0) rotate(-12deg); opacity: 0; }
+            100%{ transform: scale(1) rotate(0deg);   opacity: 1; }
+        }
+        .res-label {
+            font-size: 12px; color: var(--text-dim);
+            font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+        }
+        .res-name {
+            font-size: clamp(22px,5vw,32px);
+            font-weight: 900; line-height: 1.15;
+            letter-spacing: -0.8px; color: var(--text);
+            white-space: pre-line;
+        }
+
+        .res-body {
+            width: 100%; max-width: 540px;
+            margin: 0 auto;
+            padding: 24px 20px 72px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+
+        /* desc card */
+        .desc-card {
+            border-radius: var(--radius-xl);
+            padding: 26px;
+            position: relative; overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        .desc-card::after {
+            content: attr(data-emoji);
+            position: absolute;
+            font-size: 130px; opacity: .06;
+            right: -10px; bottom: -10px;
+            pointer-events: none;
+        }
+        .desc-tag {
+            font-size: 10px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 12px; opacity: .75;
+        }
+        .desc-text {
+            font-size: 15px; font-weight: 500;
+            line-height: 1.72;
+            color: var(--text);
+            white-space: pre-line;
+        }
+        .desc-footer {
+            margin-top: 14px; padding-top: 12px;
+            border-top: 1px solid rgba(27,58,106,0.10);
+            font-size: 12px; font-weight: 600;
+            color: var(--text-dim);
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* stats */
+        .stats-card {
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-sm), var(--shadow-card);
+        }
+        .stats-lbl {
+            font-size: 10px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 18px;
+        }
+        .s-row {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 11px;
+        }
+        .s-row:last-child { margin-bottom: 0; }
+        .s-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); width: 110px; flex-shrink: 0; }
+        .s-track {
+            flex: 1; height: 5px;
+            background: rgba(0,173,255,0.10);
+            border-radius: 3px; overflow: hidden;
+        }
+        .s-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 1.3s ease; }
+        .s-val { font-size: 12px; font-weight: 800; color: var(--text-muted); width: 14px; text-align: right; }
+
+        /* secret */
+        .secret-strip {
+            background: #FFF4EC;
+            border: 1.5px solid var(--beige);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 13px; font-weight: 600;
+            color: var(--text-muted);
+            box-shadow: 0 3px 0 rgba(229,197,180,0.35);
+        }
+
+        /* share */
+        .share-card {
+            background: var(--blue);
+            border-radius: var(--radius-xl);
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 6px 0 rgba(0,100,180,0.25), var(--shadow-md);
+        }
+        .share-title {
+            font-size: 20px; font-weight: 900;
+            color: var(--white); margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .share-sub {
+            font-size: 14px; font-weight: 500;
+            color: rgba(255,255,255,0.80);
+            line-height: 1.55; margin-bottom: 20px;
+        }
+        .channel-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--white);
+            color: var(--blue);
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px; font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 0 rgba(0,80,160,0.20);
+            transition: transform var(--tr), box-shadow var(--tr);
+            margin-bottom: 14px;
+        }
+        .channel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0,80,160,0.20), var(--shadow-sm);
+        }
+        .achieve-hint {
+            background: rgba(255,255,255,0.15);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 13px; font-weight: 500;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.5; text-align: left;
+        }
+        .achieve-hint strong { color: var(--white); font-weight: 800; }
+
+        .btn-retry {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-muted);
+            padding: 15px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px; font-weight: 700;
+            cursor: pointer;
+            transition: background var(--tr), color var(--tr), border-color var(--tr);
+            width: 100%;
+        }
+        .btn-retry:hover {
+            background: rgba(0,173,255,0.07);
+            color: var(--text);
+            border-color: var(--blue);
+        }
+
+        /* confetti */
+        .confetti-piece {
+            position: fixed; top: -10px;
+            border-radius: 2px;
+            animation: cfall linear forwards;
+            pointer-events: none; z-index: 9999;
+        }
+        @keyframes cfall {
+            0%  { transform: translateY(0) rotate(0deg);    opacity: 1; }
+            100%{ transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media(max-width:480px){
+            .q-body   { padding: 22px 16px 56px; }
+            .res-body { padding: 18px 16px 56px; }
+            .intro-brand { letter-spacing: -2px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ INTRO ══ -->
+<div class="screen active" id="intro">
+    <div class="intro-decor intro-decor-1"></div>
+    <div class="intro-decor intro-decor-2"></div>
+
+    <div class="bday-pill">
+        <span class="bday-num">7</span>
+        <span class="bday-text">лет Яндекс Лавке 🎉</span>
+    </div>
+
+    <div class="intro-logo">
+        <img id="logoImg"
+             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='24' fill='%2300ADFF'/%3E%3Ccircle cx='48' cy='48' r='32' fill='white'/%3E%3Cpath d='M36 40 C36 30 60 30 60 40 C60 50 48 58 48 58 C48 58 36 50 36 40Z' fill='%2300ADFF'/%3E%3C/svg%3E"
+             alt="Яндекс Лавка">
+    </div>
+
+    <div class="ai-online"><div class="ai-dot"></div>ИИ-Шеф · онлайн</div>
+
+    <span class="intro-brand">ИИ-Шеф</span>
+    <div class="intro-waiting">уже ждёт <em>твоих ответов</em></div>
+
+    <div class="ai-panel">
+        <div class="ai-panel-header">
+            <div class="ai-dot"></div>
+            <div class="ai-panel-title">ИИ-Шеф готов</div>
+        </div>
+        <div class="ai-panel-body">
+            Лавке уже 7 лет — она выросла и стала частью жизни миллионов людей. Самое время узнать: если бы ты был продуктом Лавки — кем бы ты был?
+        </div>
+        <div class="ai-panel-stats">
+            <div class="ai-st"><span class="ai-st-n">12</span><div class="ai-st-l">вопросов</div></div>
+            <div class="ai-st"><span class="ai-st-n">8</span><div class="ai-st-l">результатов</div></div>
+            <div class="ai-st"><span class="ai-st-n">1</span><div class="ai-st-l">скрытый</div></div>
+        </div>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">Запустить анализ →</button>
+</div>
+
+<!-- ══ QUESTION ══ -->
+<div class="screen" id="question">
+    <div class="q-topbar">
+        <div class="q-logo-sm">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2300ADFF'/%3E%3Ccircle cx='16' cy='16' r='11' fill='white'/%3E%3Cpath d='M11 13 C11 8 21 8 21 13 C21 18 16 21 16 21 C16 21 11 18 11 13Z' fill='%2300ADFF'/%3E%3C/svg%3E"
+                 alt="Лавка">
+        </div>
+        <div class="prog-track">
+            <div class="prog-fill" id="progFill" style="width:0%"></div>
+        </div>
+        <span class="q-cnt" id="qCnt">1 / 12</span>
+    </div>
+    <div class="q-body">
+        <div class="q-chip"><div class="ai-dot"></div>ИИ-Шеф анализирует</div>
+        <span class="q-emoji" id="qEmoji"></span>
+        <div class="q-text" id="qText"></div>
+        <div class="options" id="options"></div>
+    </div>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div class="screen" id="loading">
+    <img class="load-logo"
+         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='24' fill='%2300ADFF'/%3E%3Ccircle cx='48' cy='48' r='32' fill='white'/%3E%3Cpath d='M36 40 C36 30 60 30 60 40 C60 50 48 58 48 58 C48 58 36 50 36 40Z' fill='%2300ADFF'/%3E%3C/svg%3E"
+         alt="Лавка">
+    <div class="load-title">ИИ-Шеф обрабатывает данные</div>
+    <div class="load-msg" id="loadMsg">Инициализация нейронных связей...</div>
+    <div class="load-track"><div class="load-fill"></div></div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="screen" id="result">
+    <div class="res-top">
+        <div class="res-ai-row"><div class="ai-dot"></div>Вердикт ИИ-Шефа</div>
+        <div class="res-conf" id="resConf">Уверенность модели: 97.3%</div>
+        <span class="res-emoji" id="resEmoji"></span>
+        <div class="res-label">Ты — это</div>
+        <div class="res-name" id="resName"></div>
+    </div>
+
+    <div class="res-body">
+        <div class="desc-card" id="descCard" data-emoji="">
+            <div class="desc-tag" id="descTag"></div>
+            <div class="desc-text" id="descText"></div>
+            <div class="desc-footer"><span>🤖</span><span id="descFooter"></span></div>
+        </div>
+
+        <div class="secret-strip" id="secretStrip" style="display:none">
+            🐟 Поздравляем. Ты разблокировал скрытое достижение ИИ-Шефа.
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-lbl">Параметры анализа · ИИ-Шеф</div>
+            <div class="s-row"><div class="s-lbl">⚡ Скорость</div><div class="s-track"><div class="s-fill" id="b1" style="background:var(--blue)"></div></div><div class="s-val" id="v1">0</div></div>
+            <div class="s-row"><div class="s-lbl">❤️ Тепло</div><div class="s-track"><div class="s-fill" id="b2" style="background:#E07090"></div></div><div class="s-val" id="v2">0</div></div>
+            <div class="s-row"><div class="s-lbl">🌟 Репутация</div><div class="s-track"><div class="s-fill" id="b3" style="background:var(--blue-dark)"></div></div><div class="s-val" id="v3">0</div></div>
+            <div class="s-row"><div class="s-lbl">🌵 Хаос</div><div class="s-track"><div class="s-fill" id="b4" style="background:var(--orange)"></div></div><div class="s-val" id="v4">0</div></div>
+            <div class="s-row"><div class="s-lbl">🎭 Стиль</div><div class="s-track"><div class="s-fill" id="b5" style="background:var(--blue-light)"></div></div><div class="s-val" id="v5">0</div></div>
+            <div class="s-row"><div class="s-lbl">🎉 Энергия</div><div class="s-track"><div class="s-fill" id="b6" style="background:var(--peach)"></div></div><div class="s-val" id="v6">0</div></div>
+            <div class="s-row"><div class="s-lbl">🌿 Баланс</div><div class="s-track"><div class="s-fill" id="b7" style="background:var(--blue-mid)"></div></div><div class="s-val" id="v7">0</div></div>
+        </div>
+
+        <div class="share-card">
+            <div class="share-title">🎉 Поделись результатом!</div>
+            <div class="share-sub">Скидывай скриншот в канал команды и получи свою ачивку</div>
+            <br>
+            <a class="channel-btn"
+               href="https://messenger.360.yandex.ru/#/join/fc6eb779-c543-4e26-b72a-ceeb153fc900"
+               target="_blank" rel="noopener">
+                Перейти в канал ВСЕ Лавка →
+            </a>
+            <div class="achieve-hint">
+                <strong>🏆 Получи ачивку!</strong> За каждый результат — уникальный значок. Покажи скриншот в канале и забирай свой приз от команды Лавки 🛒
+            </div>
+        </div>
+
+        <button class="btn-retry" onclick="retryQuiz()">Запустить анализ заново</button>
+    </div>
+</div>
+
+<script>
+const LOGO_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='24' fill='%2300ADFF'/%3E%3Ccircle cx='48' cy='48' r='32' fill='white'/%3E%3Cpath d='M36 40 C36 30 60 30 60 40 C60 50 48 58 48 58 C48 58 36 50 36 40Z' fill='%2300ADFF'/%3E%3C/svg%3E";
+
+const questions = [
+    { emoji:'💼', text:'Пятница, 18:59. В рабочем чате: «Можешь быстро глянуть?»',
+      options:[
+        {text:'Гляну — я же быстро, пока не закрыл ноутбук', param:'speed'},
+        {text:'Гляну, но сначала уточню насколько это срочно', param:'warm'},
+        {text:'Создам задачу с дедлайном на понедельник', param:'rep'},
+        {text:'Перечитаю в воскресенье и сделаю вид что не видел', param:'chaos'}
+      ]},
+    { emoji:'🥑', text:'Ты заказал авокадо. Привезли манго. Твои действия?',
+      options:[
+        {text:'Уже съел — оказалось вкусно, претензий нет', param:'speed'},
+        {text:'Написал в поддержку — вежливо, с пониманием', param:'warm'},
+        {text:'Оставил отзыв с фото, поставил 4 звезды', param:'rep'},
+        {text:'Принял манго как знак судьбы и поменял планы на день', param:'style'}
+      ]},
+    { emoji:'⏰', text:'Коллега опаздывает на встречу на 7 минут. Ты:',
+      options:[
+        {text:'Уже начал без него — время не ждёт', param:'speed'},
+        {text:'Написал «всё ок, не торопись» и правда так думаю', param:'warm'},
+        {text:'Молча сдвинул встречу в календаре на 10 минут', param:'rep'},
+        {text:'Использовал 7 минут чтобы съесть то что лежит с прошлой недели', param:'chaos'}
+      ]},
+    { emoji:'🌙', text:'Что ты закажешь в Лавке в 11 вечера?',
+      options:[
+        {text:'🌵 Мармелад «Из Лавки» червячки со вкусом кактуса', param:'chaos'},
+        {text:'🍫 Малина в шоколаде «Лавка 100»', param:'warm'},
+        {text:'🍹 Коктейль Кентукки Мул «Из Лавки»', param:'energy'},
+        {text:'🐟 Скумбрию холодного копчения «Из Лавки»', param:'secret1'}
+      ]},
+    { emoji:'💻', text:'Идеальный рабочий созвон — это:',
+      options:[
+        {text:'15 минут, стоя, без камеры, сразу к делу', param:'speed'},
+        {text:'С кофе, в удобное время, все улыбаются', param:'warm'},
+        {text:'С повесткой, таймингом и итогами в письме', param:'rep'},
+        {text:'Тот который отменили за 3 минуты до начала', param:'chaos'}
+      ]},
+    { emoji:'🚴', text:'Лавка доставила заказ за 9 минут. Ты:',
+      options:[
+        {text:'Это норма — я и не сомневался', param:'speed'},
+        {text:'Написал курьеру «спасибо, вы молодец»', param:'warm'},
+        {text:'Поставил 5 звёзд и написал развёрнутый отзыв', param:'rep'},
+        {text:'Не успел дойти до двери — курьер уже ушёл', param:'chaos'}
+      ]},
+    { emoji:'🎯', text:'Тебя просят придумать название нового проекта. Ты:',
+      options:[
+        {text:'Выдал три варианта за 2 минуты', param:'speed'},
+        {text:'Провёл мозгоштурм с командой — важно чтобы всем нравилось', param:'warm'},
+        {text:'Изучил конкурентов и предложил выверенный вариант', param:'rep'},
+        {text:'Назвал в честь любимого блюда — все удивились но приняли', param:'style'}
+      ]},
+    { emoji:'🎉', text:'Ты на корпоративе. Где тебя найдут через час?',
+      options:[
+        {text:'В центре — уже организовал что-то интересное', param:'energy'},
+        {text:'В уютном углу — разговариваю с кем-то по душам', param:'warm'},
+        {text:'С бокалом, в элегантной позе, слушаю и наблюдаю', param:'rep'},
+        {text:'Уже дома — зато написал всем что было круто', param:'balance'}
+      ]},
+    { emoji:'🛒', text:'Холодильник пустой в воскресенье вечером. Ты:',
+      options:[
+        {text:'Уже открыл Лавку — через 15 минут всё будет', param:'speed'},
+        {text:'Позвонил другу — заодно повод встретиться', param:'warm'},
+        {text:'Составил список на неделю и сделал большой заказ', param:'rep'},
+        {text:'Нашёл в шкафу что-то необычное и приготовил из этого ужин', param:'chaos'}
+      ]},
+    { emoji:'🍕', text:'Пятница, вечер с друзьями. Что берёшь из Лавки?',
+      options:[
+        {text:'🍕 Римская пицца Ветчина грибы «Из Лавки»', param:'warm'},
+        {text:'🍺 Пивной напиток «Из Лавки» Бланш со вкусом банана', param:'energy'},
+        {text:'🌭 Колбаски с сыром и кукурузой «Из Лавки»', param:'style'},
+        {text:'🍟 Чипсы «Из Лавки» Оленина в брусничном', param:'chaos'}
+      ]},
+    { emoji:'⚡', text:'Как ты принимаешь важные решения?',
+      options:[
+        {text:'Сразу — потом по ходу разберёмся', param:'speed'},
+        {text:'Советуюсь с теми кому доверяю', param:'warm'},
+        {text:'Взвешиваю все варианты, сплю с мыслью', param:'rep'},
+        {text:'Жду пока само решится — обычно работает', param:'secret2'}
+      ]},
+    { emoji:'🌅', text:'Как бы ты описал свой подход к работе?',
+      options:[
+        {text:'Быстро, чётко, без лишних слов', param:'speed'},
+        {text:'Через людей — всё лучше получается в команде', param:'warm'},
+        {text:'Системно и с заботой о качестве', param:'rep'},
+        {text:'Непредсказуемо — но результат всегда удивляет', param:'chaos'}
+      ]}
+];
+
+const results = {
+    speed:{
+        name:'Чипсы «Из Лавки»\nОленина в брусничном соусе',
+        emoji:'🍟', color:'#A04000',
+        cardBg:'#FFF4EC', cardBorder:'#F9A870',
+        tag:'⚡ Параметр: Скорость · Индекс неожиданности: MAX',
+        text:'ИИ-Шеф обработал твои ответы и пришёл к выводу: ты — сочетание которое никто не ждал, но все оценили.\n\nОленина в брусничном соусе в виде чипсов — это смелое решение которое работает. Так же как и ты.\n\nТы двигаешься быстро, думаешь нестандартно и умеешь удивить даже тех кто думал что видел всё.',
+        footer:'ИИ-Шеф уверен: с тобой не бывает скучно', conf:'94.1%'
+    },
+    warm:{
+        name:'Малина в шоколаде\n«Лавка 100»',
+        emoji:'🍫', color:'#A03050',
+        cardBg:'#FFF0F4', cardBorder:'#F6C3CF',
+        tag:'❤️ Параметр: Тепло · Индекс любви: зашкаливает',
+        text:'Модель выдала результат: ты — любимый продукт.\n\nМалина в шоколаде — это когда всё идеально. Рядом с тобой становится теплее, а проблемы кажутся решаемыми.\n\nЛюди возвращаются к тебе снова и снова. Как к малине в шоколаде в конце трудного дня.',
+        footer:'ИИ-Шеф испытывает что-то похожее на симпатию', conf:'98.2%'
+    },
+    rep:{
+        name:'Сыр Бри «Лавка 100»\nс трюфелем',
+        emoji:'🧀', color:'#3557CC',
+        cardBg:'#EBF0FF', cardBorder:'#8BC3FF',
+        tag:'🌟 Параметр: Репутация · Класс: высший',
+        text:'Алгоритм зафиксировал максимальный балл по репутации. Интерпретация: ты — Бри с трюфелем.\n\nНе каждый сразу понимает насколько это хорошо. Но те кто понимают — больше не представляют жизни без тебя.\n\nТы держишь марку, знаешь цену качеству и не разменяешься на компромиссы.',
+        footer:'ИИ-Шеф испытывает профессиональное уважение', conf:'96.7%'
+    },
+    chaos:{
+        name:'Мармелад «Из Лавки»\nчервячки со вкусом кактуса',
+        emoji:'🌵', color:'#0090CC',
+        cardBg:'#EBF8FF', cardBorder:'#A3E8FE',
+        tag:'🌵 Параметр: Хаос · Предсказуемость: 0%',
+        text:'ИИ-Шеф завис на 3 секунды. Это рекорд. Потом выдал: червячки со вкусом кактуса.\n\nНикто не знал что это нужно — пока не попробовал. Ты именно такой: появляешься неожиданно, делаешь что никто не ждал, и почему-то это работает лучше всего запланированного.',
+        footer:'ИИ-Шеф принял тебя и двигается дальше', conf:'91.4%'
+    },
+    style:{
+        name:'Крендель «Из Лавки»\nв молочной шоколадной глазури',
+        emoji:'🥨', color:'#A04000',
+        cardBg:'#FFF4EC', cardBorder:'#F9A870',
+        tag:'🎭 Параметр: Стиль · Сочетаемость: неожиданная',
+        text:'Нейросеть зафиксировала паттерн: ты умеешь совмещать несовместимое.\n\nСолёный крендель в шоколадной глазури — звучит странно ровно до того момента как попробуешь. Потом понимаешь: по-другому и быть не могло.',
+        footer:'ИИ-Шеф обновил свои представления о вкусе', conf:'93.8%'
+    },
+    energy:{
+        name:'Коктейль безалкогольный\nКентукки Мул «Из Лавки»',
+        emoji:'🍹', color:'#A04000',
+        cardBg:'#FFF4EC', cardBorder:'#F9A870',
+        tag:'🎉 Параметр: Энергия · Заряд: максимальный',
+        text:'Модель зафиксировала аномально высокий уровень энергии. Диагноз: Кентукки Мул.\n\nТы появляешься — и комната оживает. Без тебя встреча — это встреча. С тобой — событие.\n\nОстрый, освежающий, с характером. Тебя не забывают после первого общения.',
+        footer:'ИИ-Шеф попросил добавки', conf:'95.5%'
+    },
+    balance:{
+        name:'Сидр безалкогольный «Из Лавки»\nфруктовый манго-ром',
+        emoji:'🥤', color:'#2A4FAA',
+        cardBg:'#EBF4FF', cardBorder:'#8BC3FF',
+        tag:'🌿 Параметр: Баланс · Гармония: идеальная',
+        text:'Алгоритм обнаружил редкое сочетание: ты умеешь совмещать то что кажется несовместимым — и делать это легко.\n\nМанго и ром без алкоголя — лучшее из обоих миров. С тобой спокойно. Не скучно, а именно спокойно — это разные вещи.',
+        footer:'ИИ-Шеф завидует твоей внутренней гармонии', conf:'97.0%'
+    },
+    secret:{
+        name:'Скумбрия холодного\nкопчения «Из Лавки»',
+        emoji:'🐟', color:'#1B3A6A',
+        cardBg:'#EBF8FF', cardBorder:'#A3E8FE',
+        tag:'🐟 Статус: СКРЫТОЕ ДОСТИЖЕНИЕ · Встречается у 3% пользователей',
+        text:'ИИ-Шеф молчал 7 секунд. Абсолютный рекорд. Затем вывел одно слово: скумбрия.\n\nТы прошёл тест так, что нейросеть не смогла тебя классифицировать по стандартным параметрам. Ты существуешь за пределами системы координат.\n\nСкумбрия холодного копчения — это не просто рыба. Это философия.',
+        footer:'ИИ-Шеф сохранил этот результат в особую папку',
+        conf:'🔒 засекречено', isSecret:true
+    }
+};
+
+let scores = {speed:0,warm:0,rep:0,chaos:0,style:0,energy:0,balance:0,secret1:0,secret2:0};
+let curQ = 0;
+
+function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function startQuiz(){
+    scores = {speed:0,warm:0,rep:0,chaos:0,style:0,energy:0,balance:0,secret1:0,secret2:0};
+    curQ = 0;
+    show('question');
+    renderQ();
+}
+
+function retryQuiz(){ startQuiz(); }
+
+function renderQ(){
+    const q = questions[curQ], total = questions.length;
+    document.getElementById('progFill').style.width = ((curQ/total)*100)+'%';
+    document.getElementById('qCnt').textContent = (curQ+1)+' / '+total;
+    document.getElementById('qEmoji').textContent = q.emoji;
+    document.getElementById('qText').textContent = q.text;
+
+    const letters = ['А','Б','В','Г'];
+    const wrap = document.getElementById('options');
+    wrap.innerHTML = '';
+    q.options.forEach((opt,i)=>{
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.setAttribute('data-idx', i);
+        btn.innerHTML = `<span class="opt-badge">${letters[i]}</span><span>${opt.text}</span>`;
+        btn.onclick = () => pick(opt.param, btn);
+        wrap.appendChild(btn);
+    });
+}
+
+function pick(param, btn){
+    document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    setTimeout(()=>{
+        scores[param] = (scores[param]||0)+1;
+        curQ++;
+        if(curQ < questions.length) renderQ();
+        else showLoading();
+    }, 270);
+}
+
+function showLoading(){
+    show('loading');
+    const msgs = [
+        'Инициализация нейронных связей...',
+        'Обработка паттернов поведения...',
+        'Сравнение с базой данных Лавки...',
+        'Калибровка вкусовых предпочтений...',
+        'Финальный расчёт...',
+        'Результат найден...'
+    ];
+    let i = 0;
+    const el = document.getElementById('loadMsg');
+    const iv = setInterval(()=>{ el.textContent = msgs[Math.min(i,msgs.length-1)]; i++; }, 460);
+    setTimeout(()=>{ clearInterval(iv); showResult(); }, 2900);
+}
+
+function showResult(){
+    const isSecret = scores.secret1>=1 && scores.secret2>=1;
+    let key;
+    if(isSecret){
+        key = 'secret';
+    } else {
+        const m = {
+            speed:   scores.speed,
+            warm:    scores.warm,
+            rep:     scores.rep,
+            chaos:   scores.chaos+(scores.secret1||0)+(scores.secret2||0),
+            style:   scores.style,
+            energy:  scores.energy,
+            balance: scores.balance
+        };
+        const max = Math.max(...Object.values(m));
+        const w = Object.keys(m).filter(k=>m[k]===max);
+        key = w[Math.floor(Math.random()*w.length)];
+    }
+    const r = results[key];
+
+    document.getElementById('resEmoji').textContent = r.emoji;
+    document.getElementById('resName').textContent  = r.name;
+    document.getElementById('resName').style.color  = r.color;
+    document.getElementById('resConf').textContent  = 'Уверенность модели: '+r.conf;
+
+    const card = document.getElementById('descCard');
+    card.style.background  = r.cardBg;
+    card.style.border      = '1.5px solid '+r.cardBorder;
+    card.setAttribute('data-emoji', r.emoji);
+
+    document.getElementById('descTag').textContent   = r.tag;
+    document.getElementById('descTag').style.color   = r.color;
+    document.getElementById('descText').textContent  = r.text;
+    document.getElementById('descFooter').textContent= r.footer;
+    document.getElementById('secretStrip').style.display = r.isSecret ? 'block' : 'none';
+
+    show('result');
+
+    const total = questions.length;
+    setTimeout(()=>{
+        ['speed','warm','rep','chaos','style','energy','balance'].forEach((p,i)=>{
+            const raw = p==='chaos'
+                ? scores.chaos+(scores.secret1||0)+(scores.secret2||0)
+                : (scores[p]||0);
+            document.getElementById('b'+(i+1)).style.width = Math.round((raw/total)*100)+'%';
+            document.getElementById('v'+(i+1)).textContent = raw;
+        });
+    }, 350);
+
+    spawnConfetti(r.cardBorder);
+}
+
+function spawnConfetti(main){
+    const cols = [main,'#00ADFF','#FF8204','#F6C3CF','#A3E8FE','#F9A870','#8BC3FF','#E5C5B4'];
+    for(let i=0; i<90; i++){
+        setTimeout(()=>{
+            const c = document.createElement('div');
+            c.className = 'confetti-piece';
+            const sz = 5+Math.random()*7;
+            c.style.cssText = `
+                left:${Math.random()*100}%;
+                width:${sz}px; height:${sz}px;
+                background:${cols[Math.floor(Math.random()*cols.length)]};
+                animation-duration:${1.6+Math.random()*2.2}s;
+                animation-delay:${Math.random()*.9}s;
+                transform:rotate(${Math.random()*360}deg);
+                border-radius:${Math.random()>.5?'50%':'3px'};
+            `;
+            document.body.appendChild(c);
+            setTimeout(()=>c.remove(), 4200);
+        }, i*22);
+    }
+}
+</script>
+</body>
+</html>
