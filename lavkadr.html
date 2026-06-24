@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кто ты из Яндекс Лавки? 🛒</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue: #00AEEF;
+            --pink: #FF6B9D;
+            --yellow: #FFD60A;
+            --green: #00C896;
+            --purple: #9B6DFF;
+            --black: #1A1A1A;
+            --white: #FFFFFF;
+            --gray: #F5F5F5;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* STARS BG */
+        .stars {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* SCREENS */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .screen.active { display: flex; flex-direction: column; }
+
+        /* INTRO */
+        #intro {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+        }
+
+        .intro-badge {
+            display: inline-block;
+            background: var(--pink);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .crystal-ball-intro {
+            font-size: 100px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+            display: block;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .intro h1 {
+            font-size: clamp(28px, 6vw, 52px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .intro h1 .pink { color: var(--pink); }
+        .intro h1 .blue { color: var(--blue); }
+
+        .intro-sub {
+            font-size: 16px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.6;
+            max-width: 400px;
+            margin: 0 auto 16px;
+        }
+
+        .horoscope-intro {
+            background: rgba(255,107,157,0.1);
+            border: 1px solid rgba(255,107,157,0.3);
+            border-radius: 16px;
+            padding: 20px 24px;
+            max-width: 420px;
+            margin: 0 auto 32px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .horoscope-intro .astro-sign {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--pink);
+            font-style: normal;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--pink), var(--blue));
+            color: white;
+            border: none;
+            padding: 18px 48px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-start:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,107,157,0.4); }
+
+        .stars-count {
+            margin-top: 24px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* QUESTION */
+        #question {
+            padding: 0;
+            justify-content: flex-start;
+        }
+
+        .q-header {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .q-logo { font-size: 20px; }
+
+        .progress-wrap {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pink), var(--blue));
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .q-counter {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            white-space: nowrap;
+        }
+
+        .q-body {
+            flex: 1;
+            padding: 32px 24px 40px;
+            max-width: 540px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .q-number {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 12px;
+        }
+
+        .q-text {
+            font-size: clamp(20px, 4vw, 26px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 32px;
+            color: var(--white);
+        }
+
+        .q-emoji {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .options { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-align: left;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.25s;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .option-btn:hover {
+            background: rgba(255,107,157,0.15);
+            border-color: var(--pink);
+            transform: translateX(4px);
+        }
+
+        .option-btn.selected {
+            background: rgba(255,107,157,0.2);
+            border-color: var(--pink);
+        }
+
+        .option-letter {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .option-btn:hover .option-letter,
+        .option-btn.selected .option-letter {
+            background: var(--pink);
+        }
+
+        /* LOADING */
+        #loading {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+        }
+
+        .loading-ball {
+            font-size: 80px;
+            animation: spin 2s linear infinite;
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+        }
+
+        .loading-sub {
+            font-size: 14px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .loading-dots span {
+            animation: blink 1.4s infinite;
+            font-size: 24px;
+            color: var(--pink);
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0; }
+            40% { opacity: 1; }
+        }
+
+        /* RESULT */
+        #result {
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0;
+        }
+
+        .result-header {
+            width: 100%;
+            padding: 40px 24px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .result-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 12px;
+        }
+
+        .crystal-ball-result {
+            font-size: 90px;
+            display: block;
+            margin: 0 auto 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .result-announce {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .result-product-name {
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .result-emoji-big {
+            font-size: 72px;
+            display: block;
+            margin: 16px auto;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .result-body {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 24px 60px;
+        }
+
+        /* HOROSCOPE CARD */
+        .horoscope-card {
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .horoscope-card::before {
+            content: '🔮';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.06;
+            right: -20px;
+            bottom: -20px;
+        }
+
+        .horo-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .horo-prediction {
+            font-size: 15px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .horo-sign {
+            margin-top: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            opacity: 0.6;
+        }
+
+        /* STATS */
+        .stats-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stats-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 16px;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .stat-row:last-child { margin-bottom: 0; }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .stat-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .stat-val {
+            font-size: 13px;
+            font-weight: 700;
+            width: 20px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* SHARE */
+        .share-card {
+            background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(0,174,239,0.15));
+            border: 1px solid rgba(255,107,157,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .share-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .share-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 16px;
+        }
+
+        .btn-retry {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            width: 100%;
+        }
+
+        .btn-retry:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        /* HIDDEN RESULT */
+        .secret-badge {
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+        }
+
+        /* CONFETTI */
+        .confetti-piece {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            top: -10px;
+            border-radius: 2px;
+            animation: confettiFall linear forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .q-body { padding: 24px 16px 32px; }
+            .result-body { padding: 20px 16px 48px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- STARS -->
+<div class="stars" id="stars"></div>
+
+<!-- ======= INTRO ======= -->
+<div class="screen active" id="intro">
+    <span class="crystal-ball-intro">🔮</span>
+    <div class="intro-badge">✨ Гороскоп из Лавки · 7 лет</div>
+    <h1>Кто ты из<br><span class="pink">Яндекс</span> <span class="blue">Лавки?</span></h1>
+    <p class="intro-sub">Шар уже видит твою корзину. Осталось ответить на 7 вопросов.</p>
+
+    <div class="horoscope-intro">
+        <span class="astro-sign">🌙 Послание от шара</span>
+        «Звёзды выстроились в необычную конфигурацию. Меркурий вошёл в ретроградную Лавку. Ожидаются осадки в виде доставки за 15 минут. Шар видит тебя. Шар знает всё. Шар не ошибается — в отличие от алгоритма замены авокадо.»
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">Узнать свою судьбу 🔮</button>
+    <div class="stars-count">7 вопросов · без правильных ответов · только честно</div>
+</div>
+
+<!-- ======= QUESTION ======= -->
+<div class="screen" id="question">
+    <div class="q-header">
+        <span class="q-logo">🛒</span>
+        <div class="progress-wrap">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <span class="q-counter" id="qCounter">1 / 7</span>
+    </div>
+    <div class="q-body">
+        <div class="q-number" id="qNumber">Вопрос 1</div>
+        <span class="q-emoji" id="qEmoji"></span>
+        <div class="q-text" id="qText"></div>
+        <div class="options" id="options"></div>
+    </div>
+</div>
+
+<!-- ======= LOADING ======= -->
+<div class="screen" id="loading">
+    <span class="loading-ball">🔮</span>
+    <div class="loading-text">Шар читает твою судьбу</div>
+    <div class="loading-dots">
+        <span>·</span><span>·</span><span>·</span>
+    </div>
+    <div class="loading-sub" id="loadingMsg">Анализируем паттерны поведения...</div>
+</div>
+
+<!-- ======= RESULT ======= -->
+<div class="screen" id="result">
+    <div class="result-header">
+        <div class="result-label">🔮 Шар вынес вердикт</div>
+        <span class="crystal-ball-result">🔮</span>
+        <div class="result-announce">Ты — это</div>
+        <div class="result-product-name" id="resultName"></div>
+        <span class="result-emoji-big" id="resultEmoji"></span>
+    </div>
+    <div class="result-body">
+        <div class="horoscope-card" id="horoCard">
+            <div class="horo-tag" id="horoTag"></div>
+            <div class="horo-prediction" id="horoPrediction"></div>
+            <div class="horo-sign" id="horoSign"></div>
+        </div>
+
+        <div id="secretBadge" style="display:none" class="secret-badge">
+            🐟 Поздравляем. Ты разблокировал скрытое достижение.
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-title">Твоя энергия по параметрам</div>
+            <div class="stat-row">
+                <div class="stat-label">⚡ Скорость</div>
+                <div class="stat-bar-wrap"><div class="stat-bar-fill" id="barSpeed" style="width:0%;background:#FFD60A"></div></div>
+                <div class="stat-val" id="valSpeed">0</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label">❤️ Тепло</div>
+                <div class="stat-bar-wrap"><div class="stat-bar-fill" id="barWarm" style="width:0%;background:#FF6B9D"></div></div>
+                <div class="stat-val" id="valWarm">0</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label">🌟 Репутация</div>
+                <div class="stat-bar-wrap"><div class="stat-bar-fill" id="barRep" style="width:0%;background:#00AEEF"></div></div>
+                <div class="stat-val" id="valRep">0</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label">🌵 Хаос</div>
+                <div class="stat-bar-wrap"><div class="stat-bar-fill" id="barChaos" style="width:0%;background:#9B6DFF"></div></div>
+                <div class="stat-val" id="valChaos">0</div>
+            </div>
+        </div>
+
+        <div class="share-card">
+            <div class="share-title">Покажи коллегам 🎉</div>
+            <div class="share-sub">Сделай скриншот — и узнай кто они из Лавки</div>
+        </div>
+
+        <button class="btn-retry" onclick="retryQuiz()">🔮 Спросить шар ещё раз</button>
+    </div>
+</div>
+
+<script>
+    // ===== STARS =====
+    (function createStars() {
+        const container = document.getElementById('stars');
+        for (let i = 0; i < 80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.cssText = `
+                left:${Math.random()*100}%;
+                top:${Math.random()*100}%;
+                animation-delay:${Math.random()*3}s;
+                animation-duration:${2+Math.random()*3}s;
+                width:${Math.random()>0.7?3:2}px;
+                height:${Math.random()>0.7?3:2}px;
+                opacity:${Math.random()*0.5+0.1};
+            `;
+            container.appendChild(s);
+        }
+    })();
+
+    // ===== QUESTIONS =====
+    const questions = [
+        {
+            emoji: '💼',
+            text: 'Пятница, 18:59. Рабочий чат: «Можешь быстро глянуть?»',
+            options: [
+                { text: 'Гляну — мне несложно, я быстро', param: 'speed' },
+                { text: 'Гляну — но сначала уточню насколько это срочно', param: 'warm' },
+                { text: 'Переведу в задачу с дедлайном на понедельник', param: 'rep' },
+                { text: 'Перечитаю в воскресенье и сделаю вид что не видел', param: 'chaos' }
+            ]
+        },
+        {
+            emoji: '🥑',
+            text: 'Ты заказал авокадо. Привезли манго. Ты:',
+            options: [
+                { text: 'Уже съел — было вкусно', param: 'speed' },
+                { text: 'Написал в поддержку — вежливо, с пониманием', param: 'warm' },
+                { text: 'Оставил отзыв с фото, поставил 4 звезды', param: 'rep' },
+                { text: 'Принял манго как знак судьбы и поменял планы на день', param: 'chaos' }
+            ]
+        },
+        {
+            emoji: '⏰',
+            text: 'Коллега опаздывает на встречу на 7 минут. Ты:',
+            options: [
+                { text: 'Уже начал без него', param: 'speed' },
+                { text: 'Написал «всё ок, не торопись»', param: 'warm' },
+                { text: 'Молча передвинул встречу в календаре', param: 'rep' },
+                { text: 'Использовал 7 минут чтобы съесть то что лежит с прошлой недели', param: 'chaos' }
+            ]
+        },
+        {
+            emoji: '🌙',
+            text: 'Что ты скорее всего закажешь в Лавке в 11 вечера?',
+            options: [
+                { text: 'Что-то быстрое — чипсы, батончик', param: 'speed' },
+                { text: 'Что-то тёплое — молоко, чай', param: 'warm' },
+                { text: 'Что-то запланированное — я составляю список заранее', param: 'rep' },
+                { text: 'Скумбрию холодного копчения', param: 'secret1' }
+            ]
+        },
+        {
+            emoji: '💻',
+            text: 'Твой идеальный рабочий созвон — это:',
+            options: [
+                { text: '15 минут, стоя, без камеры', param: 'speed' },
+                { text: 'С кофе, в удобное время, все улыбаются', param: 'warm' },
+                { text: 'С повесткой, таймингом и итогами в письме', param: 'rep' },
+                { text: 'Тот который отменили за 3 минуты до начала', param: 'chaos' }
+            ]
+        },
+        {
+            emoji: '🚴',
+            text: 'Лавка доставила заказ за 9 минут. Ты:',
+            options: [
+                { text: 'Это норма — я и не сомневался', param: 'speed' },
+                { text: 'Написал курьеру «спасибо, вы молодец»', param: 'warm' },
+                { text: 'Поставил 5 звёзд и написал развёрнутый отзыв', param: 'rep' },
+                { text: 'Не успел дойти до двери — курьер уже ушёл', param: 'chaos' }
+            ]
+        },
+        {
+            emoji: '🤔',
+            text: 'Как ты принимаешь решения?',
+            options: [
+                { text: 'Сразу — потом разберёмся', param: 'speed' },
+                { text: 'Советуюсь с кем-то близким', param: 'warm' },
+                { text: 'Взвешиваю плюсы и минусы, сплю с мыслью', param: 'rep' },
+                { text: 'Жду пока само решится — и оно обычно решается', param: 'secret2' }
+            ]
+        }
+    ];
+
+    // ===== RESULTS =====
+    const results = {
+        speed: {
+            name: 'Жизнерадостный Банан',
+            emoji: '🍌',
+            color: '#FFD60A',
+            colorBg: 'rgba(255,214,10,0.15)',
+            colorBorder: 'rgba(255,214,10,0.3)',
+            horoTag: '☀️ Знак Скорости · Стихия Экспресс-доставки',
+            prediction: 'Меркурий в твоём асценденте движется со скоростью курьера в час пик. Звёзды говорят: ты придёшь первым. Уйдёшь тоже первым. Но все запомнят именно тебя.\n\nОжидается: ты ответишь на это сообщение раньше чем оно дочитается до конца. Удача сопутствует тем кто не ждёт пока авокадо дозреет — а берёт первое что попалось и делает гуакамоле.\n\nВ карьере: ты — тот кто запускает процесс до того как написали ТЗ. Иногда это гениально. Иногда — нет. Но скучно не бывает.',
+            sign: '— Шар из Лавки, наблюдает с уважением и лёгкой тревогой 🍌'
+        },
+        warm: {
+            name: 'Очаровательная Черешня',
+            emoji: '🍒',
+            color: '#FF6B9D',
+            colorBg: 'rgba(255,107,157,0.15)',
+            colorBorder: 'rgba(255,107,157,0.3)',
+            horoTag: '🌸 Знак Тепла · Стихия Июньского Утра',
+            prediction: 'Венера встала в созвездие Корзины и посмотрела прямо на тебя. Тебя ждут. Тебе рады. Из-за тебя немного грустят когда ты заканчиваешься.\n\nОжидается: кто-то напишет тебе «спасибо» просто так, без повода. Ты — сезонный, но незабываемый. Как черешня в июне: пока ты есть — все счастливы.\n\nВ карьере: ты тот кто пишет «как ты?» перед тем как попросить о помощи. И люди отвечают тебе тем же. Это редкость. Береги это.',
+            sign: '— Шар из Лавки, смотрит с нежностью 🍒'
+        },
+        rep: {
+            name: 'Невозмутимый Айс-Латте',
+            emoji: '☕',
+            color: '#00AEEF',
+            colorBg: 'rgba(0,174,239,0.15)',
+            colorBorder: 'rgba(0,174,239,0.3)',
+            horoTag: '🌟 Знак Репутации · Стихия Холодного Молока',
+            prediction: 'Сатурн выстроился в идеально прямую линию — как ты на фото в LinkedIn. Ты всегда выглядишь хорошо. Даже в 9 утра. Даже после созвона с 12 участниками.\n\nОжидается: кто-то попросит тебя стать ментором. Ты выдашь структурированный план на 6 пунктов. Все скажут «вау». Ты скажешь «это просто логика».\n\nВ карьере: ты хранитель стандартов. Выглядишь дорого, стоишь разумно, никогда не подводишь. На тебя подписываются. Тебя цитируют в слайдах.',
+            sign: '— Шар из Лавки, одобряет и слегка завидует ☕'
+        },
+        chaos: {
+            name: 'Дерзкий Мармелад со вкусом Кактуса',
+            emoji: '🌵',
+            color: '#9B6DFF',
+            colorBg: 'rgba(155,109,255,0.15)',
+            colorBorder: 'rgba(155,109,255,0.3)',
+            horoTag: '⚡ Знак Хаоса · Стихия Неожиданного Поворота',
+            prediction: 'Уран ретроградный, Юпитер запутался, Луна пожала плечами — это твоя обычная среда. Никто не знал что тебя нужно — пока не попробовал.\n\nОжидается: ты предложишь идею которую сначала все назовут странной. Через полгода она станет стратегией. Ты к тому времени уже придумаешь следующую.\n\nВ карьере: ты — тот кто приходит на встречу с неожиданным углом зрения. Острый, непредсказуемый, вызывающий привыкание. Как мармелад со вкусом кактуса. Сначала странно. Потом невозможно остановиться.',
+            sign: '— Шар из Лавки, немного дезориентирован но восхищён 🌵'
+        },
+        secret: {
+            name: 'Загадочная Скумбрия\nХолодного Копчения',
+            emoji: '🐟',
+            color: '#00C896',
+            colorBg: 'rgba(0,200,150,0.15)',
+            colorBorder: 'rgba(0,200,150,0.3)',
+            horoTag: '🐟 Знак Загадки · Стихия Холодного Копчения',
+            prediction: 'Шар смотрел на твои ответы долго. Очень долго. Потом закрылся. Потом открылся снова и сказал только одно слово: скумбрия.\n\nТы не поддаёшься классификации. Ты существуешь за пределами системы координат. Пока другие выбирали между скоростью и теплом — ты выбрал путь рыбы холодного копчения.\n\nОжидается: в ближайшие 7 дней кто-то скажет тебе «ты странный» с интонацией комплимента. Прими это. Ты — скрытое достижение. Тебя разблокировали единицы.\n\nВ карьере: ты тот кого никто не понял на первом интервью. Но потом именно ты сделал то чего никто не ожидал. Скумбрия холодного копчения — это не просто рыба. Это философия.',
+            sign: '— Шар из Лавки, снимает шляпу 🐟',
+            isSecret: true
+        }
+    };
+
+    // ===== STATE =====
+    let scores = { speed: 0, warm: 0, rep: 0, chaos: 0, secret1: 0, secret2: 0 };
+    let currentQ = 0;
+    let answers = [];
+
+    // ===== FUNCTIONS =====
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function startQuiz() {
+        scores = { speed: 0, warm: 0, rep: 0, chaos: 0, secret1: 0, secret2: 0 };
+        answers = [];
+        currentQ = 0;
+        showScreen('question');
+        renderQuestion();
+    }
+
+    function retryQuiz() {
+        startQuiz();
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQ];
+        const total = questions.length;
+
+        document.getElementById('progressFill').style.width = ((currentQ / total) * 100) + '%';
+        document.getElementById('qCounter').textContent = (currentQ + 1) + ' / ' + total;
+        document.getElementById('qNumber').textContent = 'Вопрос ' + (currentQ + 1);
+        document.getElementById('qEmoji').textContent = q.emoji;
+        document.getElementById('qText').textContent = q.text;
+
+        const letters = ['А', 'Б', 'В', 'Г'];
+        const optionsEl = document.getElementById('options');
+        optionsEl.innerHTML = '';
+
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt.text}</span>`;
+            btn.onclick = () => selectOption(opt.param, btn);
+            optionsEl.appendChild(btn);
+        });
+    }
+
+    function selectOption(param, btn) {
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        setTimeout(() => {
+            scores[param] = (scores[param] || 0) + 1;
+            answers.push(param);
+            currentQ++;
+
+            if (currentQ < questions.length) {
+                renderQuestion();
+            } else {
+                showLoading();
+            }
+        }, 300);
+    }
+
+    function showLoading() {
+        showScreen('loading');
+        const msgs = [
+            'Анализируем паттерны поведения...',
+            'Шар консультируется со звёздами...',
+            'Меркурий входит в ретроградную Лавку...',
+            'Считаем ягоды в корзине...',
+            'Финальный расчёт судьбы...'
+        ];
+        let i = 0;
+        const msgEl = document.getElementById('loadingMsg');
+        const interval = setInterval(() => {
+            msgEl.textContent = msgs[i % msgs.length];
+            i++;
+        }, 500);
+
+        setTimeout(() => {
+            clearInterval(interval);
+            showResult();
+        }, 2800);
+    }
+
+    function showResult() {
+        // Определяем результат
+        const isSecret = scores.secret1 >= 1 && scores.secret2 >= 1;
+
+        let result;
+        let isSecretResult = false;
+
+        if (isSecret) {
+            result = results.secret;
+            isSecretResult = true;
+        } else {
+            // Убираем secret очки из подсчёта
+            const mainScores = {
+                speed: scores.speed,
+                warm: scores.warm,
+                rep: scores.rep,
+                chaos: scores.chaos + (scores.secret1 || 0) + (scores.secret2 || 0)
+            };
+
+            const max = Math.max(...Object.values(mainScores));
+            const winners = Object.keys(mainScores).filter(k => mainScores[k] === max);
+            const winner = winners[Math.floor(Math.random() * winners.length)];
+            result = results[winner];
+        }
+
+        // Рендерим
+        document.getElementById('resultName').textContent = result.name;
+        document.getElementById('resultName').style.color = result.color;
+        document.getElementById('resultEmoji').textContent = result.emoji;
+
+        const card = document.getElementById('horoCard');
+        card.style.background = result.colorBg;
+        card.style.border = `1px solid ${result.colorBorder}`;
+        card.style.color = 'white';
+
+        document.getElementById('horoTag').textContent = result.horoTag;
+        document.getElementById('horoTag').style.color = result.color;
+
+        document.getElementById('horoPrediction').textContent = result.prediction;
+        document.getElementById('horoSign').textContent = result.sign;
+
+        document.getElementById('secretBadge').style.display = isSecretResult ? 'block' : 'none';
+
+        // Бары
+        const total = questions.length;
+        const speedPct = Math.round((scores.speed / total) * 100);
+        const warmPct = Math.round((scores.warm / total) * 100);
+        const repPct = Math.round((scores.rep / total) * 100);
+        const chaosPct = Math.round(((scores.chaos + (scores.secret1||0) + (scores.secret2||0)) / total) * 100);
+
+        showScreen('result');
+
+        setTimeout(() => {
+            document.getElementById('barSpeed').style.width = speedPct + '%';
+            document.getElementById('barWarm').style.width = warmPct + '%';
+            document.getElementById('barRep').style.width = repPct + '%';
+            document.getElementById('barChaos').style.width = chaosPct + '%';
+
+            document.getElementById('valSpeed').textContent = scores.speed;
+            document.getElementById('valWarm').textContent = scores.warm;
+            document.getElementById('valRep').textContent = scores.rep;
+            document.getElementById('valChaos').textContent = scores.chaos + (scores.secret1||0) + (scores.secret2||0);
+        }, 300);
+
+        // Конфетти
+        spawnConfetti(result.color);
+    }
+
+    function spawnConfetti(color) {
+        const colors = [color, '#FF6B9D', '#00AEEF', '#FFD60A', '#9B6DFF', '#ffffff'];
+        for (let i = 0; i < 60; i++) {
+            setTimeout(() => {
+                const c = document.createElement('div');
+                c.className = 'confetti-piece';
+                c.style.cssText = `
+                    left:${Math.random()*100}%;
+                    background:${colors[Math.floor(Math.random()*colors.length)]};
+                    animation-duration:${1.5+Math.random()*2}s;
+                    animation-delay:${Math.random()*0.5}s;
+                    transform:rotate(${Math.random()*360}deg);
+                    border-radius:${Math.random()>0.5?'50%':'2px'};
+                `;
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 3000);
+            }, i * 30);
+        }
+    }
+</script>
+</body>
+</html>
